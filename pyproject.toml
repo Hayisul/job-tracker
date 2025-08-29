@@ -1,0 +1,14 @@
+[tool.black]
+line-length = 88
+target-version = ["py311"]
+skip-string-normalization = false
+
+[tool.ruff]
+line-length = 88
+target-version = "py311"
+
+# Enable basic linting rules
+lint.select = ["E", "F"]
+
+# Ignore nothing for now (you can add codes later if Ruff is too strict)
+lint.ignore = []
