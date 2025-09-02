@@ -1,17 +1,23 @@
-# node
+# Node
 node_modules
 .next
 dist
 .env.local
 
-# python
+# Python
 venv/
 __pycache__/
 *.pyc
 .env
+
+# Django
+*.sqlite3
+*.log
 
 # OS / editor
 .DS_Store
 .idea
 .vscode/*
 !.vscode/extensions.json
+*.sqlite3
+*.log
