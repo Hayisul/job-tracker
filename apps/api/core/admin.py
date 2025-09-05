@@ -5,39 +5,45 @@ from .models import Application, Contact, Task
 @admin.register(Application)
 class ApplicationAdmin(admin.ModelAdmin):
     """
-    Admin configuration for the Application model.
-    Controls how job applications are displayed, filtered and searched
-    in the Django admin panel.
+    Tells Django how to show the Application model in the admin site.
     """
 
-    # Columns to display in the list view (makes overview more informative).
+    # Which fields to show in the list of applications.
+    # (Makes it easier to see important info at a glance.)
     list_display = ("title", "company", "status", "user", "created_at")
 
-    # Siderbar filters (helpful for quickly narrowing down large datasets).
+    # Filters shown on the right side in the admin.
+    # (Lets you quickly narrow down applications.)
     list_filter = ("status", "company", "created_at")
 
-    # Searchable fields (full-text serach box at top of admin list page).
+    # Fields that can be searched with the search box at the top.
     search_fields = ("status", "company", "stage", "source", "location")
 
 
 @admin.register(Contact)
 class ContactAdmin(admin.ModelAdmin):
     """
-    Admin configuration for the Contact model.
-    Manages recruiter/HR contacts associated with applications.
+    Tells Django how to show the Contact model in the admin site.
     """
 
+    # Show these fields in the list of contacts.
     list_display = ("name", "role", "email", "application")
+
+    # Allow searching by these fields.
     search_fields = ("name", "email", "role")
 
 
 @admin.register(Task)
 class TaskAdmin(admin.ModelAdmin):
     """
-    Admin configuration for the Task model.
-    Manages to-do tasks linked to job applications.
+    Tells Django how to show the Task model in the admin site.
     """
 
+    # Show these fields in the list of tasks.
     list_display = ("title", "application", "due_date", "done", "created_at")
+
+    # Add a filter for "done" so you can see finished vs unfinished tasks.
     list_filter = ("done",)
+
+    # Allow searching by task title.
     search_fields = ("title",)

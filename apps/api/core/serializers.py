@@ -4,44 +4,45 @@ from .models import Application, Contact, Task
 
 class ContactSerializer(serializers.ModelSerializer):
     """
-    Serializer for Application-related contacts (recruiters/HR, etc.).
-    -`id` and `application` are read-only to prevent clients from mass-assigning them.
-    The view should set `application` (e.g., from URL kwargs) in `perform_create`.
+    Turns Contact objects into JSON and back.
+    Used for contacts related to an application (like recruiters).
     """
 
     class Meta:
         model = Contact
+        fields = "__all__"  # Include every field from the model
 
-        # Exposes: id, application, name, email, role, phone, notes
-        fields = "__all__"
-
-        # Protect server-owned fields; avoid alllowing the re-link contacts.
+        # These fields cannot be set by the user.
+        # - id: always auto-generated
+        # - application: must be set by the view, not the client
         read_only_fields = ("id", "application")
 
 
 class TaskSerializer(serializers.ModelSerializer):
     """
-    Serializer for tasks tied to an Application.
-    - `created_at`is server-generated.
-    - `application`is read-only; set in the view, not from client input.
+    Turns Task objects into JSON and back.
+    Used for tasks linked to an application.
     """
 
     class Meta:
         model = Task
         fields = "__all__"
+
+        # Fields the client cannot change:
+        # - id: auto-generated
+        # - application: set by the view
+        # - created_at: set automatically when saved
         read_only_fields = ("id", "application", "created_at")
 
 
 class ApplicationSerializer(serializers.ModelSerializer):
     """
-    Top-leel job application.
-    - Includes nested, READ-ONLY lists of `contacts`and `tasks`
-      to keep writes simple (no writable-nested complexity).
-      Create/update them via their own endpoints.
-    - `user` is read-only so clients can't impersonate owners;
-      set from `request.user` in the view.
+    Turns Application objects into JSON and back.
+    Includes a read-only list of contacts and tasks.
     """
 
+    # Show related contacts and tasks, but don’t allow editing them here.
+    # (They each have their own endpoints for create/update.)
     contacts = ContactSerializer(many=True, read_only=True)
     tasks = TaskSerializer(many=True, read_only=True)
 
@@ -49,6 +50,8 @@ class ApplicationSerializer(serializers.ModelSerializer):
         model = Application
         fields = "__all__"
 
-        # Server-controlled fields; `user` assigned in the view;
-        # timestamps managed by the model.
+        # Fields that are not editable by the client:
+        # - id: auto-generated
+        # - user: set by the view (request.user)
+        # - created_at / updated_at: managed automatically
         read_only_fields = ("id", "user", "created_at", "updated_at")

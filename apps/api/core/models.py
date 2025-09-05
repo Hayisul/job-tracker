@@ -4,14 +4,15 @@ from django.db import models
 
 class Application(models.Model):
     """
-    Represents a job application made by a user.
-    Stores metadata about the job, its status, source, salary, and tracking details.
+    A job application created by a user.
+    Stores information like the job title, company, status, salary, etc.
     """
 
     class Status(models.TextChoices):
         """
-        Enumerated job application statuses.
-        Using TextChoices ensures database consistency and human-readable labels.
+        Choices for the status of an application.
+        Stored in the database as text (e.g., "applied"),
+        but displayed nicely in the admin or forms (e.g., "Applied").
         """
 
         APPLIED = "applied", "Applied"
@@ -19,42 +20,41 @@ class Application(models.Model):
         OFFER = "offer", "Offer"
         REJECTED = "rejected", "Rejected"
 
-    # User who owns the application.
-    # Linked to the Django AUTH_USER_MODEL for flexibility.
+    # Link each application to the user who owns it.
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
 
-    # Job-related metadata.
-    title = models.CharField(max_length=200)  # e.g., Software Engineer
+    # Job details.
+    title = models.CharField(max_length=200)  # Job title (e.g., "Software Engineer")
     company = models.CharField(max_length=200)  # Company name
-    location = models.CharField(max_length=200, blank=True)  # Optional job location
-    stage = models.CharField(max_length=200, blank=True)  # Custom stage
+    location = models.CharField(max_length=200, blank=True)  # Job location (optional)
+    stage = models.CharField(max_length=200, blank=True)  # Custom stage name
 
-    # Predefined status (with default = applied).
+    # Status of the application, defaults to "applied".
     status = models.CharField(
         max_length=20,
         choices=Status.choices,
         default=Status.APPLIED,
     )
 
-    # Where the job was found: LinkedIn, Referral, Job Board, etc.
+    # Where the job was found (LinkedIn, referral, etc.).
     source = models.CharField(max_length=120, blank=True)
 
-    # Optional salary expectations.
+    # Salary range (optional).
     salary_min = models.IntegerField(null=True, blank=True)
     salary_max = models.IntegerField(null=True, blank=True)
 
-    # Priority level for tracking applications (0 = low, 5 = high).
+    # Priority level for this application (0 = low, 5 = high).
     priority = models.IntegerField(default=0)
 
-    # Audit fields.
-    created_at = models.DateField(auto_now_add=True)  # Automatically set on creation
-    updated_at = models.DateTimeField(auto_now=True)  # Automatically updated on save
+    # Automatically managed timestamps.
+    created_at = models.DateField(auto_now_add=True)  # Set when created
+    updated_at = models.DateTimeField(auto_now=True)  # Updated every save
 
     class Meta:
         """
-        Meta configuration for Application model.
-        - Default ordering by newest applications.
-        - Indexes for common queries.
+        Extra settings for the model:
+        - Show newest applications first.
+        - Add indexes to make common queries faster.
         """
 
         ordering = ["-created_at"]
@@ -65,66 +65,66 @@ class Application(models.Model):
         ]
 
     def __str__(self) -> str:
-        """Readable string representation: 'Job Title @ Company'."""
+        """How this object shows up as text (useful in the admin)."""
         return f"{self.title} @ {self.company}"
 
 
 class Contact(models.Model):
     """
-    Represents a contact person related to an application
+    A contact person related to a job application
     (e.g., recruiter, HR manager, referral).
     """
 
-    # Link back to Application (one_to_many relationship).
+    # Link to the application this contact belongs to.
     application = models.ForeignKey(
         Application,
-        related_name="contacts",  # Allows reveerse lookup: application.contacts.all()
+        related_name="contacts",  # Lets us use: application.contacts.all()
         on_delete=models.CASCADE,
     )
 
     # Contact details.
-    name = models.CharField(max_length=120)  # Required contact name
-    email = models.EmailField(blank=True)  # Optional email
-    role = models.CharField(max_length=120, blank=True)  # Job role (e.g., "Recruiter")
-    phone = models.CharField(max_length=50, blank=True)  # Optional phone number
-    notes = models.TextField(blank=True)  # Free-form notes
+    name = models.CharField(max_length=120)  # Contact's name
+    email = models.EmailField(blank=True)  # Contact's email (optional)
+    role = models.CharField(max_length=120, blank=True)  # Contact's role/job title
+    phone = models.CharField(max_length=50, blank=True)  # Phone number (optional)
+    notes = models.TextField(blank=True)  # Extra notes
 
     def __str__(self) -> str:
-        """Readable string: 'Name (Role)."""
+        """Text display for this contact (Name and Role)."""
         return f"{self.name} ({self.role})"
 
 
 class Task(models.Model):
     """
-    Represents a task related to a job application
-    (e.g., 'Send follow-up email', 'Prepare for interview').
+    A task connected to a job application
+    (e.g., "Send follow-up email", "Prepare for interview").
     """
 
-    # Link back to Application (one-to-many relationship).
+    # Link to the application this task belongs to.
     application = models.ForeignKey(
         Application,
-        related_name="tasks",  # Allows reverse lookup: application.tasks.all()
+        related_name="tasks",  # Lets us use: application.tasks.all()
         on_delete=models.CASCADE,
     )
 
     # Task details.
-    title = models.CharField(max_length=200)  # Short task description
-    due_date = models.DateField(null=True, blank=True)  # Optional due date
-    done = models.BooleanField(default=False)  # Task completion status
+    title = models.CharField(max_length=200)  # Task title
+    due_date = models.DateField(null=True, blank=True)  # Optional deadline
+    done = models.BooleanField(default=False)  # Is the task finished?
 
-    # Audit field
-    created_at = models.DateTimeField(auto_now_add=True)  # Auto-set on creation
+    # Automatically set when the task is created.
+    created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
         """
-        Task ordering rules:
-        - Incomplete tasks first.
-        - Oredered by due date (soonest first).
-        - If same due date, ordered by creation time (latest first)
+        How tasks are sorted:
+        - Incomplete first
+        - Then by due date (earliest first)
+        - If same due date, newest created first
         """
 
         ordering = ["done", "due_date", "-created_at"]
 
     def __str__(self) -> str:
-        """Readable string: task title"""
+        """Text display for this task (just the title)."""
         return self.title
