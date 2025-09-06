@@ -1,16 +1,27 @@
 # 💼 Job Tracker
 
-A full-stack web app to manage job applications, built with Next.js, Django REST Framework, and PostgreSQL. Users can track applications, contacts, tasks, and interview stages with a clean dashboard, kanban pipeline, and searchable tables.
+A full-stack web app to manage job applications, built with **Next.js, Django REST Framework, and PostgreSQL**.
+Track applications, contacts, tasks, and interview stages with a clean dashboard, kanban pipeline, and searchable tables.
+
+[![Next.js](https://img.shields.io/badge/Next.js-15-black?logo=next.js)](https://nextjs.org/)
+
+[![Django REST](https://img.shields.io/badge/Django%20REST-API-green?logo=django)](https://www.django-rest-framework.org/)
+
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+
+---
 
 ## 🚀 Features
 
-- 🔐 Authentication (JWT, cookie-based)
+- 🔐 Authentication (JWT with access/refresh tokens)
 - 📊 Dashboard with KPIs (applications, interviews, offers, rejections)
 - 🗂 Applications table with filters, search, pagination, CSV export
-- 📌 Kanban board (Applied → Interview → Offer → Rejected)
+- 📌 Kanban board (Applied → Interview → Offer → Rejected) 🚧 _(work in progress)_
 - 📇 Application detail with contacts & tasks
 - ⚙️ User settings (profile, password, export, delete account)
 - 🌐 Responsive, modern SaaS UI (Next.js + shadcn/ui + Tailwind)
+
+---
 
 ## 🛠️ Tech Stack
 
@@ -33,7 +44,9 @@ A full-stack web app to manage job applications, built with Next.js, Django REST
 
 - Docker & docker-compose
 - GitHub Actions (CI/CD)
-- Prettier, ESLint, Black, isort
+- Prettier, ESLint, Black
+
+---
 
 ## 🏃‍♂️ Getting Started
 
@@ -44,11 +57,6 @@ A full-stack web app to manage job applications, built with Next.js, Django REST
 - Docker (optional)
 
 ### Installation
-
-1. Clone the repository
-2. Install dependencies
-3. Set up environment variables
-4. Run the development server
 
 ```bash
 # clone repo
@@ -63,7 +71,10 @@ npm run dev
 # backend
 cd ../api
 python -m venv venv && source venv/bin/activate
-pip install -r requirements.txt
+
+# install deps (until requirements.txt is added)
+pip install django djangorestframework django-filter djangorestframework-simplejwt corsheaders python-dotenv
+
 python manage.py migrate
 python manage.py runserver
 ```
